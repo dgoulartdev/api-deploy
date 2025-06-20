@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -22,9 +23,9 @@ jobs:
 
     - name: Fazer deploy na VM
       run: |
-        ssh -i ~/.ssh/id_ed25519 ubuntu@168.138.247.24 '
-          cd /home/douglas
-          git pull origin main &&
-          npm install &&
-          pm2 restart app || node index.js &
-        '
+        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ubuntu@168.138.247.24 << 'EOF'
+          cd /home/douglas || exit 1
+          git pull origin main
+          npm install
+          pm2 restart app || (pkill node || true && nohup node index.js &)
+        EOF
