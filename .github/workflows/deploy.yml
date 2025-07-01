@@ -14,18 +14,16 @@ jobs:
     - name: Clonar repositório
       uses: actions/checkout@v3
 
-    - name: Iniciar ssh-agent e adicionar chave
-      uses: webfactory/ssh-agent@v0.8.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Adicionar host à lista de conhecidos
+    - name: Configurar chave SSH manualmente
       run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
         ssh-keyscan -H 168.138.247.24 >> ~/.ssh/known_hosts
 
     - name: Fazer deploy na VM
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@168.138.247.24 << 'EOF'
+        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ubuntu@168.138.247.24 << 'EOF'
           cd /home/douglas/projeto || exit 1
           git pull origin main
           npm install
