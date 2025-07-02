@@ -16,16 +16,9 @@ jobs:
 
     - name: Configurar chave SSH manualmente
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H 168.138.247.24 >> ~/.ssh/known_hosts
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
 
     - name: Fazer deploy na VM
       run: |
-        ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ubuntu@168.138.247.24 << 'EOF'
-          cd /home/douglas/projeto || exit 1
-          git pull origin main
-          npm install
-          pm2 restart app || pm2 start index.js --name app
-        EOF
+        rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./dist ./prisma package.json "ubuntu@168.138.247.24"
