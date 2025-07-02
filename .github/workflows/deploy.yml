@@ -21,4 +21,4 @@ jobs:
 
     - name: Fazer deploy na VM
       run: |
-        rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" ./dist ./prisma package.json "ubuntu@168.138.247.24"
+        rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" index.js package.json "ubuntu@168.138.247.24"
